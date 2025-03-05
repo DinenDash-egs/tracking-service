@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+motor            # Para conexão com MongoDB
+pydantic         # Para validação dos dados
