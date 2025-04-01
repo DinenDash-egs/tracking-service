@@ -1,0 +1,175 @@
+openapi: 3.0.0
+info:
+  title: Tracking API
+  description: API responsável pelo monitoramento de entregas em tempo real.
+  version: v1
+servers:
+- url: https://virtserver.swaggerhub.com/dinedash/trackingAPI/v1
+  description: Mock Server (SwaggerHub)
+paths:
+  /v1/deliveries:
+    get:
+      summary: Listar entregas
+      description: Obtém uma lista de entregas filtradas por status e paginação.
+      operationId: getDeliveries
+      parameters:
+      - name: status
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          $ref: '#/components/schemas/DeliveryStatus'
+      - name: limit
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 0
+      responses:
+        "200":
+          description: Lista de entregas.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeliveryResponse'
+    post:
+      summary: Criar um novo registo de entrega
+      description: Registra uma nova entrega no sistema.
+      operationId: createDelivery
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryRequest'
+        required: true
+      responses:
+        "201":
+          description: Entrega criada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        "400":
+          description: Requisição inválida.
+        "500":
+          description: Erro interno do servidor.
+  /v1/deliveries/{tracking_id}:
+    get:
+      summary: Obter status da entrega
+      description: Retorna os detalhes de uma entrega com base no tracking ID.
+      operationId: getDeliveryStatus
+      parameters:
+      - name: tracking_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Detalhes da entrega.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryResponse'
+        "404":
+          description: Entrega não encontrada.
+    put:
+      summary: Atualizar status da entrega
+      description: Atualiza o status de uma entrega com base no tracking ID.
+      operationId: updateDeliveryStatus
+      parameters:
+      - name: tracking_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeliveryUpdate'
+        required: true
+      responses:
+        "200":
+          description: Status atualizado com sucesso.
+        "400":
+          description: Status inválido.
+        "404":
+          description: Entrega não encontrada.
+    delete:
+      summary: Deletar uma entrega
+      description: Remove um registo de entrega com base no tracking ID.
+      operationId: deleteDelivery
+      parameters:
+      - name: tracking_id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Entrega deletada com sucesso.
+        "404":
+          description: Entrega não encontrada.
+components:
+  schemas:
+    DeliveryStatus:
+      type: string
+      example: pending
+      enum:
+      - pending
+      - in_transit
+      - delivered
+      - canceled
+    DeliveryRequest:
+      type: object
+      properties:
+        order_id:
+          type: string
+          example: order123
+        customer_name:
+          type: string
+          example: João Sousa
+        address:
+          type: string
+          example: "Rua Exemplo, 123, Lisboa"
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+    DeliveryUpdate:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'
+    DeliveryResponse:
+      type: object
+      properties:
+        tracking_id:
+          type: string
+          example: track123
+        order_id:
+          type: string
+        customer_name:
+          type: string
+        address:
+          type: string
+        status:
+          $ref: '#/components/schemas/DeliveryStatus'

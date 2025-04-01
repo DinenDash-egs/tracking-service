@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: "rabbitmq"
+    ports:
+      - "5673:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      
+  geolocation:
+    build: .
+    container_name: "geolocation-service"
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8005:8005"
+    restart: always
+    environment:
+      RABBITMQ_HOST: "rabbitmq"

@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  title: Geolocation API
+  description: API responsável por obter a geolocalização do sistema e enviá-la para RabbitMQ.
+  version: v1
+servers:
+- url: https://virtserver.swaggerhub.com/dinedash/geolocationAPI/v1
+  description: Mock Server (SwaggerHub)
+paths:
+  /v1/location:
+    get:
+      summary: Obter localização
+      description: Retorna a geolocalização aproximada do sistema.
+      operationId: getLocation
+      responses:
+        "200":
+          description: Localização obtida com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        "500":
+          description: Erro ao obter localização.
+  /v1/send_location:
+    get:
+      summary: Obter e enviar localização
+      description: Obtém a localização e envia os dados para RabbitMQ.
+      operationId: sendLocation
+      responses:
+        "200":
+          description: Localização enviada com sucesso para a fila.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendLocationResponse'
+        "500":
+          description: Erro ao enviar localização.
+components:
+  schemas:
+    LocationResponse:
+      type: object
+      properties:
+        latitude:
+          type: number
+          example: 38.7169
+        longitude:
+          type: number
+          example: -9.1399
+        city:
+          type: string
+          example: Lisboa
+        country:
+          type: string
+          example: Portugal
+        ip:
+          type: string
+          example: 192.168.1.1
+        timestamp:
+          type: string
+          format: date-time
+          example: 2025-03-11T12:00:00Z
+    SendLocationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/LocationResponse'
