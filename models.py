@@ -1,3 +1,4 @@
+# models.py
 from __future__ import annotations
 from enum import Enum
 from typing import Optional
@@ -17,7 +18,9 @@ class DeliveryRequest(BaseModel):
     """Model representing a delivery request containing package details and destination."""
     order_id: str = Field(..., example="order123", description="Unique identifier for the order.")
     customer_name: str = Field(..., example="João Sousa", description="Name of the recipient.")
-    address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Full delivery address.")
+    address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Full initial address where the package starts.")
+    delivery_address: str = Field(..., example="Avenida Exemplo, 456, Porto", description="Full delivery destination address.")
+    delivery_date: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Date and time scheduled for delivery in UTC.")
     status: DeliveryStatus = Field(default=DeliveryStatus.pending, description="Current delivery status.")
     estimated_delivery_time: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Estimated delivery time in UTC.")
 
@@ -33,9 +36,10 @@ class DeliveryResponse(BaseModel):
     tracking_id: str = Field(..., example="track123", description="Unique tracking identifier for the delivery.")
     order_id: str = Field(..., example="order123", description="Unique order identifier.")
     customer_name: str = Field(..., example="João Sousa", description="Name of the recipient.")
-    address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Delivery destination.")
+    inicial_address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Initial address from where the delivery started.")
+    delivery_address: str = Field(..., example="Avenida Exemplo, 456, Porto", description="Delivery destination address.")
+    delivery_date: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Scheduled delivery date and time in UTC.")
     status: DeliveryStatus = Field(..., description="Current status of the delivery.")
-    estimated_delivery_time: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Expected delivery time in UTC.")
     last_updated: datetime = Field(..., description="Last update timestamp of the delivery status.")
 
 

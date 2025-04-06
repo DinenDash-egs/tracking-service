@@ -6,7 +6,6 @@ from models import DeliveryRequest, DeliveryUpdate, DeliveryResponse, DeliverySt
 import geocoder
 from datetime import datetime
 import pika
-import os
 import time
 import json
 
@@ -16,15 +15,15 @@ client = AsyncIOMotorClient(MONGO_URI)
 db = client.trackingdb
 deliveries_collection = db["deliveries"]
 
-# Get RabbitMQ hostname and port from environment variables
-RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")  # Use Docker service name
-RABBITMQ_PORT = 5672  # Internal port
+# Configuração do RabbitMQ
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
+RABBITMQ_PORT = 5672
 
 QUEUE_NAME = "geolocation"
 
 def get_location():
     """Retrieve approximate geolocation data of the machine."""
-    g = geocoder.ip("me")  # Uses external IP to get location
+    g = geocoder.ip("me")
     if g.ok:
         return {
             "latitude": g.latlng[0],
@@ -39,13 +38,13 @@ def get_location():
 def send_message_to_queue(data: dict):
     """Send JSON data to RabbitMQ queue with retry logic."""
     connection = None
-    retries = 5  # Number of retries
+    retries = 5
     while retries > 0:
         try:
             connection = pika.BlockingConnection(
                 pika.ConnectionParameters(host=RABBITMQ_HOST, port=RABBITMQ_PORT)
             )
-            break  # Success
+            break
         except pika.exceptions.AMQPConnectionError:
             print("RabbitMQ is not ready yet. Retrying in 5 seconds...")
             time.sleep(5)
@@ -67,7 +66,9 @@ async def create_delivery(delivery: DeliveryRequest):
         "tracking_id": tracking_id,
         "order_id": delivery.order_id,
         "customer_name": delivery.customer_name,
-        "address": delivery.address,
+        "inicial_address": delivery.inicial_address,
+        "delivery_address": delivery.delivery_address,
+        "estimated_delivery_time": delivery.estimated_delivery_time,
         "status": delivery.status.value
     }
     await deliveries_collection.insert_one(delivery_data)
@@ -111,4 +112,3 @@ async def delete_delivery(tracking_id: str):
         raise HTTPException(status_code=404, detail="Delivery not found")
 
     return {"message": f"Delivery {tracking_id} deleted successfully"}
-

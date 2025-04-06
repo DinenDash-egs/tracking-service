@@ -5,19 +5,19 @@ services:
     image: "rabbitmq:3-management"
     container_name: "rabbitmq"
     ports:
-      - "5673:5672"
+      - "5673:5672"    # ATENÇÃO: Estás a mapear para 5673 na máquina, mas o container vai continuar 5672
       - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-      
-  geolocation:
+
+  tracking-service:
     build: .
-    container_name: "geolocation-service"
+    container_name: "tracking-service"
     depends_on:
       - rabbitmq
     ports:
-      - "8005:8005"
+      - "5007:5007"
     restart: always
     environment:
       RABBITMQ_HOST: "rabbitmq"
