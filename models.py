@@ -6,24 +6,21 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-class DeliveryStatus(Enum):
-    """Enumeration of possible delivery statuses."""
+class DeliveryStatus(str, Enum):
     pending = "pending"
     in_transit = "in_transit"
     delivered = "delivered"
-    canceled = "canceled"
+    cancelled = "cancelled"
 
 
 class DeliveryRequest(BaseModel):
-    """Model representing a delivery request containing package details and destination."""
-    order_id: str = Field(..., example="order123", description="Unique identifier for the order.")
-    customer_name: str = Field(..., example="João Sousa", description="Name of the recipient.")
-    address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Full initial address where the package starts.")
-    delivery_address: str = Field(..., example="Avenida Exemplo, 456, Porto", description="Full delivery destination address.")
-    delivery_date: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Date and time scheduled for delivery in UTC.")
-    status: DeliveryStatus = Field(default=DeliveryStatus.pending, description="Current delivery status.")
-    estimated_delivery_time: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Estimated delivery time in UTC.")
-
+    order_id: str
+    customer_name: str
+    address: str                     # User-selected location
+    restaurant_address: str          # Placeholder for now
+    delivery_date: datetime
+    estimated_delivery_time: datetime
+    status: DeliveryStatus
 
 class DeliveryUpdate(BaseModel):
     """Model for updating delivery status."""
@@ -32,16 +29,15 @@ class DeliveryUpdate(BaseModel):
 
 
 class DeliveryResponse(BaseModel):
-    """Model representing the details of a delivery response."""
-    tracking_id: str = Field(..., example="track123", description="Unique tracking identifier for the delivery.")
-    order_id: str = Field(..., example="order123", description="Unique order identifier.")
-    customer_name: str = Field(..., example="João Sousa", description="Name of the recipient.")
-    inicial_address: str = Field(..., example="Rua Exemplo, 123, Lisboa", description="Initial address from where the delivery started.")
-    delivery_address: str = Field(..., example="Avenida Exemplo, 456, Porto", description="Delivery destination address.")
-    delivery_date: datetime = Field(..., example="2025-03-11T15:00:00Z", description="Scheduled delivery date and time in UTC.")
-    status: DeliveryStatus = Field(..., description="Current status of the delivery.")
-    last_updated: datetime = Field(..., description="Last update timestamp of the delivery status.")
-
+    tracking_id: str
+    order_id: str
+    customer_name: str
+    address: str
+    restaurant_address: str
+    delivery_date: Optional[datetime] = None
+    estimated_delivery_time: datetime
+    status: DeliveryStatus
+    last_updated: Optional[datetime] = None
 
 class LocationResponse(BaseModel):
     """Model for representing location details obtained from the system."""

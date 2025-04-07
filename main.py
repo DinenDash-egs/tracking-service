@@ -10,7 +10,7 @@ import time
 import json
 
 # Configuração do MongoDB
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/trackingdb")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client.trackingdb
 deliveries_collection = db["deliveries"]
@@ -59,20 +59,25 @@ def send_message_to_queue(data: dict):
     channel.basic_publish(exchange="", routing_key=QUEUE_NAME, body=message)
     connection.close()
 
-# Criar um novo registo de entrega
 async def create_delivery(delivery: DeliveryRequest):
     tracking_id = str(uuid.uuid4())
+    now = datetime.utcnow()
+
     delivery_data = {
         "tracking_id": tracking_id,
         "order_id": delivery.order_id,
         "customer_name": delivery.customer_name,
-        "inicial_address": delivery.inicial_address,
-        "delivery_address": delivery.delivery_address,
+        "address": delivery.address,
+        "restaurant_address": delivery.restaurant_address,
+        "delivery_date": delivery.delivery_date,
         "estimated_delivery_time": delivery.estimated_delivery_time,
-        "status": delivery.status.value
+        "status": delivery.status.value,
+        "last_updated": now
     }
+
     await deliveries_collection.insert_one(delivery_data)
     return DeliveryResponse(**delivery_data)
+
 
 # Atualizar status da entrega
 async def update_delivery_status(tracking_id: str, update: DeliveryUpdate):

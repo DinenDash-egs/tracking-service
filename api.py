@@ -1,5 +1,6 @@
 # api.py
 from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi.middleware.cors import CORSMiddleware  # <-- Add this import
 from models import (
     DeliveryRequest, DeliveryUpdate, DeliveryResponse, DeliveryStatus,
     LocationResponse, SendLocationResponse
@@ -13,6 +14,14 @@ app = FastAPI(
     title="Tracking API",
     version="1.0",
     description="This API allows tracking deliveries, retrieving real-time status updates, and managing deliveries efficiently."
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 router = APIRouter(prefix="/v1")
