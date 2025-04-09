@@ -33,7 +33,7 @@ async def create_delivery_endpoint(delivery: DeliveryRequest):
     return await create_delivery(delivery)
 
 
-@router.put("/deliveries/{tracking_id}", response_model=dict, summary="Update delivery status")
+@router.patch("/deliveries/{tracking_id}", response_model=dict, summary="Update delivery status")
 async def update_delivery_status_endpoint(tracking_id: str, update: DeliveryUpdate):
     """Updates the status of an existing delivery, marking changes in the delivery tracking system."""
     return await update_delivery_status(tracking_id, update)
