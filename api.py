@@ -1,6 +1,7 @@
 # api.py
 from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.middleware.cors import CORSMiddleware  # <-- Add this import
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from models import (
     DeliveryRequest, DeliveryUpdate, DeliveryResponse, DeliveryStatus,
     LocationResponse, SendLocationResponse
@@ -68,6 +69,35 @@ async def get_location_endpoint():
     """Retrieves the approximate geolocation of the current system based on its external IP address."""
     return get_location()
 
+#TODO - Add a new endpoint to list all the orders filtered by an username input
+@router.get("/user/{customer_name}", response_model=list[DeliveryResponse], summary="List all deliveries by user")
+async def get_deliveries_by_user(customer_name: str):
+    """
+    Returns all delivery records associated with a given customer name.
+    """
+    from main import deliveries_collection
+    deliveries_cursor = deliveries_collection.find({"customer_name": customer_name})
+    deliveries = await deliveries_cursor.to_list(length=100)
+    return [DeliveryResponse(**delivery) for delivery in deliveries]
+    
+#TODO - check if there's any active delivery for the user and return it
+@router.get("/user/active/{customer_name}", response_model=DeliveryResponse, summary="Get in-transit delivery for user")
+async def get_active_delivery_by_user(customer_name: str):
+    """
+    Returns the most recent 'in_transit' delivery for the given user.
+    If none exists, returns 204 No Content.
+    """
+    from main import deliveries_collection
+
+    delivery = await deliveries_collection.find_one({
+        "customer_name": customer_name,
+        "status": "in_transit"
+    }, sort=[("last_updated", -1)])
+
+    if not delivery:
+        return JSONResponse(status_code=204, content=None)
+
+    return DeliveryResponse(**delivery)
 
 app.include_router(router)
 
