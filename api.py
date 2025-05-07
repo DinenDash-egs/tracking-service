@@ -14,7 +14,8 @@ from main import (
 app = FastAPI(
     title="Tracking API",
     version="1.0",
-    description="This API allows tracking deliveries, retrieving real-time status updates, and managing deliveries efficiently."
+    description="This API allows tracking deliveries, retrieving real-time status updates, and managing deliveries efficiently.",
+    root_path="/tracking"
 )
 
 app.add_middleware(
