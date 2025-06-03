@@ -10,14 +10,15 @@ import time
 import json
 
 # Configuração do MongoDB
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI")
+DB_NAME = os.getenv("DB_NAME", "trackingdb")  # se necessário
 client = AsyncIOMotorClient(MONGO_URI)
-db = client.trackingdb
+db = client[DB_NAME]
 deliveries_collection = db["deliveries"]
 
-# Configuração do RabbitMQ
-RABBITMQ_HOST = os.getenv("RABBITMQ_HOST", "rabbitmq")
-RABBITMQ_PORT = 5672
+# RabbitMQ
+RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
+RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
 
 QUEUE_NAME = "geolocation"
 
