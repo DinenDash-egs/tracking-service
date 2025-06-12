@@ -11,14 +11,20 @@ import json
 
 # Configuração do MongoDB
 MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = os.getenv("DB_NAME", "trackingdb")  # se necessário
+DB_NAME = os.getenv("DB_NAME", "trackingdb")
 client = AsyncIOMotorClient(MONGO_URI)
 db = client[DB_NAME]
 deliveries_collection = db["deliveries"]
 
 # RabbitMQ
 RABBITMQ_HOST = os.getenv("RABBITMQ_HOST")
-RABBITMQ_PORT = int(os.getenv("RABBITMQ_PORT", "5672"))
+# Handle both plain port numbers and Kubernetes service URLs
+rabbitmq_port_env = os.getenv("RABBITMQ_PORT", "5672")
+if rabbitmq_port_env.startswith("tcp://"):
+    # Extract port from URL format: tcp://host:port
+    RABBITMQ_PORT = int(rabbitmq_port_env.split(":")[-1])
+else:
+    RABBITMQ_PORT = int(rabbitmq_port_env)
 
 QUEUE_NAME = "geolocation"
 
